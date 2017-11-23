@@ -1,5 +1,7 @@
 package proxy;
 
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -10,9 +12,13 @@ import datanode.DatanodeServer;
 import namenode.NamenodeServer;
 
 public class ProxyServer implements Proxy {
+	private String file;
+	private String text;
+
 	public static void main(String[] args) {
 		int port = 7001;
-
+		String IP;
+		
 		try {
 
 			ProxyServer obj = new ProxyServer();
@@ -31,37 +37,26 @@ public class ProxyServer implements Proxy {
 
 	}
 
-	// Método para escrever no arquivo
-	@Override
-	public void operation(String file, String text) {
-		// Perguntar ao namenode onde está o datanode desse arquivo
-		Datanode datanodeStub = getDatanode(file);
-		datanodeStub.write(file, text);
-
-	}
-
-	// Método para ler ou deletar o arquivo
-	@Override
-	public void operation(String file, int op) {
-		Datanode datanodeStub = getDatanode(file);
-		switch (op) {
-		case 1:
-			datanodeStub.read(file);
-
-		case 3:
-			datanodeStub.delete(file);
-		}
-
-	}
+	
+	
 
 	public Datanode getDatanode(String file) {
 		// Localiza o registry do namenode e cria um stub do namenode para encaminhar
 		// a mensagem aos outros usuários
-		Registry namenodeRegistry = LocateRegistry.getRegistry(host, port);
-		NamenodeServer namenodeStub = (NamenodeServer) namenodeRegistry.lookup("Namenode");
+		Registry namenodeRegistry = null;
+		Datanode datanodeStub = null;
+		try {
+			namenodeRegistry = LocateRegistry.getRegistry(NamenodeServer.getIP(), NamenodeServer.getPort());
+			NamenodeServer namenodeStub = (NamenodeServer) namenodeRegistry.lookup("Namenode");
 
-		// Perguntar ao namenode onde está o datanode desse arquivo
-		Datanode datanodeStub = namenodeStub.getDatanode(file);
+			// Perguntar ao namenode onde está o datanode desse arquivo
+			datanodeStub = namenodeStub.getDatanode(file);
+
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		} catch (NotBoundException e) {
+			e.printStackTrace();
+		}
 		return datanodeStub;
 
 	}
@@ -70,26 +65,28 @@ public class ProxyServer implements Proxy {
 	public void create(String file, String text) {
 		// Localiza o registry do namenode e cria um stub do namenode para encaminhar
 		// a mensagem aos outros usuários
-		Registry namenodeRegistry = LocateRegistry.getRegistry(host, port);
+		Registry namenodeRegistry = LocateRegistry.getRegistry(NamenodeServer.getIP(), NamenodeServer.getPort());
 		NamenodeServer namenodeStub = (NamenodeServer) namenodeRegistry.lookup("Namenode");
 
 		// Perguntar ao namenode onde está o datanode desse arquivo
 		Hashtable<String, Datanode> hashtable = namenodeStub.getDatanodes();
-		Datanode datanodeStub = hashtable.put(file.hashCode() % hashtable.size()); // Acho que isso não vai
+		Datanode datanodeStub = hashtable.putAll(file.hashCode() % hashtable.size()); // Acho que isso não vai
 																				   // dar certo porque o tamanho
 																				   // da hashtable muda a medida
 																				   // que novos elementos vão sendo
 																				   // inseridos
 		datanodeStub.create(file, text);
 	}
-
+	
+	// Método para pedir ao datanode para ler o arquivo
 	@Override
 	public void read(String file) {
 		// Perguntar ao namenode onde está o datanode desse arquivo
 		Datanode datanodeStub = getDatanode(file);
 		datanodeStub.read(file);
 	}
-
+	
+	// Método para pedir ao datanode para escrever no arquivo
 	@Override
 	public void write(String file, String text) {
 		// Perguntar ao namenode onde está o datanode desse arquivo

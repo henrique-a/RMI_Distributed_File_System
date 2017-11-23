@@ -12,8 +12,8 @@ import proxy.ProxyServer;
 //O namenode pode ser um singleton
 
 public class NamenodeServer implements Namenode {
-	private String IP;
-	private int port; 
+	private  static String IP;
+	private static int port; 
 	private Hashtable<String, Datanode> datanodes = 
 			new Hashtable<>();
 	
@@ -50,12 +50,12 @@ public class NamenodeServer implements Namenode {
 	}
 
 
-	public String getIP() {
+	public static String getIP() {
 		return IP;
 	}
 
 
-	public int getPort() {
+	public static int getPort() {
 		return port;
 	}
 
