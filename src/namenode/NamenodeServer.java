@@ -3,7 +3,10 @@ package namenode;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 
 import datanode.Datanode;
 import proxy.Proxy;
@@ -13,9 +16,9 @@ import proxy.ProxyServer;
 
 public class NamenodeServer implements Namenode {
 	private  static String IP;
-	private static int port; 
-	private Hashtable<String, Datanode> datanodes = 
-			new Hashtable<>();
+	private static int port;
+	HashMap<String, Integer> map = new HashMap<>();	
+	List<Datanode> datanodes = new ArrayList<>();
 	
 	public static void main(String[] args) {
 		int port = 7001;
@@ -41,12 +44,14 @@ public class NamenodeServer implements Namenode {
 	
 	@Override
 	public Datanode getDatanode(String file) {
-		return null;
+		int id = map.get(file);
+		return datanodes.get(id);
 	}
 
 	@Override
-	public String addFile(String file, String datanode) {
-		return null;
+	public void addDatanode(Datanode datanode) {
+		datanodes.add(datanode);
+		map.put(null, datanodes.size());
 	}
 
 
@@ -60,8 +65,8 @@ public class NamenodeServer implements Namenode {
 	}
 
 
-	public Hashtable<String, Datanode> getDatanodes() {
-		return datanodes;
+	public HashMap<String, Integer> getMap() {
+		return map;
 	}
 
 }

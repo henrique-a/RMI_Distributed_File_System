@@ -10,10 +10,14 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Scanner;
+
+import namenode.NamenodeServer;
 
 public class DatanodeServer implements Datanode {
 	private String IP;
@@ -26,6 +30,7 @@ public class DatanodeServer implements Datanode {
 		this.name = name;
 		this.port = port;
 		this.id = id;
+		addToNamenode();
 	}
 
 	public static void main(String[] args) {
@@ -55,6 +60,22 @@ public class DatanodeServer implements Datanode {
 			System.err.println("Server exception: " + e.toString());
 			e.printStackTrace();
 		}
+	}
+	
+	public void addToNamenode() {
+		Registry namenodeRegistry;
+		try {
+			namenodeRegistry = LocateRegistry.getRegistry(NamenodeServer.getIP(), NamenodeServer.getPort());
+			NamenodeServer namenodeStub = (NamenodeServer) namenodeRegistry.lookup("Namenode");
+			namenodeStub.addDatanode(this);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NotBoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 	@Override

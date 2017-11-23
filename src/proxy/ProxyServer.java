@@ -5,6 +5,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.HashMap;
 import java.util.Hashtable;
 
 import datanode.Datanode;
@@ -12,13 +13,11 @@ import datanode.DatanodeServer;
 import namenode.NamenodeServer;
 
 public class ProxyServer implements Proxy {
-	private String file;
-	private String text;
-
+	
 	public static void main(String[] args) {
 		int port = 7001;
 		String IP;
-		
+
 		try {
 
 			ProxyServer obj = new ProxyServer();
@@ -37,16 +36,12 @@ public class ProxyServer implements Proxy {
 
 	}
 
-	
-	
-
 	public Datanode getDatanode(String file) {
 		// Localiza o registry do namenode e cria um stub do namenode para encaminhar
 		// a mensagem aos outros usuários
-		Registry namenodeRegistry = null;
 		Datanode datanodeStub = null;
 		try {
-			namenodeRegistry = LocateRegistry.getRegistry(NamenodeServer.getIP(), NamenodeServer.getPort());
+			Registry namenodeRegistry = LocateRegistry.getRegistry(NamenodeServer.getIP(), NamenodeServer.getPort());
 			NamenodeServer namenodeStub = (NamenodeServer) namenodeRegistry.lookup("Namenode");
 
 			// Perguntar ao namenode onde está o datanode desse arquivo
@@ -60,24 +55,30 @@ public class ProxyServer implements Proxy {
 		return datanodeStub;
 
 	}
-	
+
 	@Override
 	public void create(String file, String text) {
 		// Localiza o registry do namenode e cria um stub do namenode para encaminhar
 		// a mensagem aos outros usuários
-		Registry namenodeRegistry = LocateRegistry.getRegistry(NamenodeServer.getIP(), NamenodeServer.getPort());
-		NamenodeServer namenodeStub = (NamenodeServer) namenodeRegistry.lookup("Namenode");
+		try {
+			Registry namenodeRegistry = LocateRegistry.getRegistry(NamenodeServer.getIP(), NamenodeServer.getPort());
+			NamenodeServer namenodeStub = (NamenodeServer) namenodeRegistry.lookup("Namenode");
+			// Perguntar ao namenode em qual datanode colocar esse arquivo
+			HashMap<String, Integer> map = namenodeStub.getMap();
+			map.put(file, new Integer(Math.abs(file.hashCode() % map.values().size())));
+			Datanode datanodeStub = getDatanode(file);
+			datanodeStub.create(file, text);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NotBoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-		// Perguntar ao namenode onde está o datanode desse arquivo
-		Hashtable<String, Datanode> hashtable = namenodeStub.getDatanodes();
-		Datanode datanodeStub = hashtable.putAll(file.hashCode() % hashtable.size()); // Acho que isso não vai
-																				   // dar certo porque o tamanho
-																				   // da hashtable muda a medida
-																				   // que novos elementos vão sendo
-																				   // inseridos
-		datanodeStub.create(file, text);
+		
 	}
-	
+
 	// Método para pedir ao datanode para ler o arquivo
 	@Override
 	public void read(String file) {
@@ -85,7 +86,7 @@ public class ProxyServer implements Proxy {
 		Datanode datanodeStub = getDatanode(file);
 		datanodeStub.read(file);
 	}
-	
+
 	// Método para pedir ao datanode para escrever no arquivo
 	@Override
 	public void write(String file, String text) {
@@ -101,5 +102,4 @@ public class ProxyServer implements Proxy {
 		datanodeStub.delete(file);
 	}
 
-	
 }

@@ -6,5 +6,5 @@ import datanode.Datanode;
 
 public interface Namenode extends Remote{
 	Datanode getDatanode(String file);
-	String addFile(String file, String datanode);
+	void addDatanode(Datanode datanode);
 }
