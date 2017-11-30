@@ -1,5 +1,9 @@
 package proxy;
 
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -7,6 +11,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Scanner;
 
 import datanode.Datanode;
 import datanode.DatanodeServer;
@@ -14,10 +19,12 @@ import namenode.NamenodeServer;
 
 public class ProxyServer implements Proxy {
 	
-	public static void main(String[] args) {
-		int port = 7001;
-		String IP;
+	private static String IP;
+	private static int port = 7001;
 
+	public static void main(String[] args) {
+		IP = localIP();
+	
 		try {
 
 			ProxyServer obj = new ProxyServer();
@@ -58,14 +65,16 @@ public class ProxyServer implements Proxy {
 
 	@Override
 	public void create(String file, String text) {
+		
 		// Localiza o registry do namenode e cria um stub do namenode para encaminhar
 		// a mensagem aos outros usuários
 		try {
 			Registry namenodeRegistry = LocateRegistry.getRegistry(NamenodeServer.getIP(), NamenodeServer.getPort());
 			NamenodeServer namenodeStub = (NamenodeServer) namenodeRegistry.lookup("Namenode");
-			// Perguntar ao namenode em qual datanode colocar esse arquivo
-			HashMap<String, Integer> map = namenodeStub.getMap();
-			map.put(file, new Integer(Math.abs(file.hashCode() % map.values().size())));
+			
+			// Adicionar arquivo na tabela hash do namenode
+			namenodeStub.addFile(file);
+			
 			Datanode datanodeStub = getDatanode(file);
 			datanodeStub.create(file, text);
 		} catch (RemoteException e) {
@@ -100,6 +109,20 @@ public class ProxyServer implements Proxy {
 		// Perguntar ao namenode onde está o datanode desse arquivo
 		Datanode datanodeStub = getDatanode(file);
 		datanodeStub.delete(file);
+	}	
+	
+	// Método para pegar o ip da máquina
+	public static String localIP() {
+		try (final DatagramSocket socket = new DatagramSocket()) {
+			socket.connect(InetAddress.getByName("8.8.8.8"), 10000);
+			return socket.getLocalAddress().getHostAddress();
+		} catch (SocketException e) {
+			e.printStackTrace();
+			return "";
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			return "";
+		}
 	}
 
 }

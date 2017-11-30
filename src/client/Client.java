@@ -1,7 +1,9 @@
 package client;
 
 public class Client {
-
+	
+	int port = 7000;
+	
 	public static void main(String[] args) {
 		
 		
