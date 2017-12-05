@@ -21,14 +21,22 @@ import datanode.Datanode;
 public class NamenodeServer implements Namenode {
 	private static String IP;
 	private static int port;
-	HashMap<String, Integer> map = new HashMap<>();
-	List<Datanode> datanodes = new ArrayList<>();
+	HashMap<String, Integer> map;
+	List<Datanode> datanodes;
 	String mapBackupFile = "map.ser";
 	String listBackupFile = "list.ser";
 	
 	public NamenodeServer() {
-		this.map = (HashMap<String, Integer>) loadFromDisk(mapBackupFile);
-		this.datanodes = (List<Datanode>) loadFromDisk(listBackupFile);
+		try {
+			this.map = (HashMap<String, Integer>) loadFromDisk(mapBackupFile);
+		} catch (IOException e) {
+			this.map = new HashMap<>();
+		}
+		try {
+			this.datanodes = (List<Datanode>) loadFromDisk(listBackupFile);
+		} catch (IOException e) {
+			this.datanodes = new ArrayList<>();
+		}
 	}
 	
 	public static void main(String[] args) {
@@ -85,7 +93,7 @@ public class NamenodeServer implements Namenode {
 		}
 	}
 	
-	public Object loadFromDisk(String fileName) {
+	public Object loadFromDisk(String fileName) throws IOException {
 		Object obj = null;
 	      try {
 	         FileInputStream fileIn = new FileInputStream(fileName);
@@ -94,8 +102,6 @@ public class NamenodeServer implements Namenode {
 	         in.close();
 	         fileIn.close();
 	         return obj;
-	      } catch (IOException i) {
-	         i.printStackTrace();
 	      } catch (ClassNotFoundException c) {
 	         System.out.println("Class not found");
 	         c.printStackTrace();
