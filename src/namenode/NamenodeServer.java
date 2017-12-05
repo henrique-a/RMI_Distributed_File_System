@@ -1,7 +1,9 @@
 package namenode;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -23,7 +25,12 @@ public class NamenodeServer implements Namenode {
 	List<Datanode> datanodes = new ArrayList<>();
 	String mapBackupFile = "map.ser";
 	String listBackupFile = "list.ser";
-
+	
+	public NamenodeServer() {
+		this.map = (HashMap<String, Integer>) loadFromDisk(mapBackupFile);
+		this.datanodes = (List<Datanode>) loadFromDisk(listBackupFile);
+	}
+	
 	public static void main(String[] args) {
 		int port = 7002;
 		IP = localIP();
@@ -76,6 +83,24 @@ public class NamenodeServer implements Namenode {
 		} catch (IOException i) {
 			i.printStackTrace();
 		}
+	}
+	
+	public Object loadFromDisk(String fileName) {
+		Object obj = null;
+	      try {
+	         FileInputStream fileIn = new FileInputStream(fileName);
+	         ObjectInputStream in = new ObjectInputStream(fileIn);
+	         obj = in.readObject();
+	         in.close();
+	         fileIn.close();
+	         return obj;
+	      } catch (IOException i) {
+	         i.printStackTrace();
+	      } catch (ClassNotFoundException c) {
+	         System.out.println("Class not found");
+	         c.printStackTrace();
+	      }
+		return obj;
 	}
 
 	public static String getIP() {
