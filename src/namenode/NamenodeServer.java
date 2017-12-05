@@ -1,5 +1,8 @@
 package namenode;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -9,25 +12,21 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 
 import datanode.Datanode;
-import proxy.Proxy;
-import proxy.ProxyServer;
-
-//O namenode pode ser um singleton
 
 public class NamenodeServer implements Namenode {
-	private  static String IP;
+	private static String IP;
 	private static int port;
-	HashMap<String, Integer> map = new HashMap<>();	
+	HashMap<String, Integer> map = new HashMap<>();
 	List<Datanode> datanodes = new ArrayList<>();
-	
+	String mapBackupFile = "map.ser";
+	String listBackupFile = "list.ser";
+
 	public static void main(String[] args) {
 		int port = 7002;
 		IP = localIP();
-
 
 		try {
 
@@ -47,7 +46,6 @@ public class NamenodeServer implements Namenode {
 
 	}
 
-	
 	@Override
 	public Datanode getDatanode(String file) {
 		int id = map.get(file);
@@ -57,30 +55,41 @@ public class NamenodeServer implements Namenode {
 	@Override
 	public void addDatanode(Datanode datanode) {
 		datanodes.add(datanode);
+		saveToDisk(datanodes, listBackupFile);
 		map.put(null, datanodes.size());
+		saveToDisk(map, mapBackupFile);
 	}
-	
+
 	@Override
 	public void addFile(String file) {
 		map.put(file, new Integer(Math.abs(file.hashCode() % map.values().size())));
+		saveToDisk(map, mapBackupFile);
 	}
 
-
+	public void saveToDisk(Object obj, String fileName) {
+		try {
+			FileOutputStream file = new FileOutputStream(fileName);
+			ObjectOutputStream out = new ObjectOutputStream(file);
+			out.writeObject(obj);
+			out.close();
+			file.close();
+		} catch (IOException i) {
+			i.printStackTrace();
+		}
+	}
 
 	public static String getIP() {
 		return IP;
 	}
 
-
 	public static int getPort() {
 		return port;
 	}
 
-
 	public HashMap<String, Integer> getMap() {
 		return map;
 	}
-	
+
 	// Método para pegar o ip da máquina
 	public static String localIP() {
 		try (final DatagramSocket socket = new DatagramSocket()) {
@@ -94,6 +103,5 @@ public class NamenodeServer implements Namenode {
 			return "";
 		}
 	}
-
 
 }
