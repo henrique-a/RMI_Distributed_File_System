@@ -25,7 +25,7 @@ public class NamenodeServer implements Namenode {
 	List<Datanode> datanodes;
 	String mapBackupFile = "map.ser";
 	String listBackupFile = "list.ser";
-	
+
 	public NamenodeServer() {
 		try {
 			this.map = (HashMap<String, Integer>) loadFromDisk(mapBackupFile);
@@ -38,7 +38,7 @@ public class NamenodeServer implements Namenode {
 			this.datanodes = new ArrayList<>();
 		}
 	}
-	
+
 	public static void main(String[] args) {
 		int port = 7002;
 		IP = localIP();
@@ -62,16 +62,23 @@ public class NamenodeServer implements Namenode {
 	}
 
 	@Override
-	public Datanode getDatanode(String file) {
+	public List<Datanode> getDatanodes(String file) {
 		int id = map.get(file);
-		return datanodes.get(id);
+		List<Datanode> fileDatanodes = new ArrayList<>();
+		fileDatanodes.add(datanodes.get(id));
+		if (id == datanodes.size() - 1) {
+			fileDatanodes.add(datanodes.get(0));
+		} else {
+			fileDatanodes.add(datanodes.get(id + 1));
+		}
+		return fileDatanodes;
 	}
 
 	@Override
 	public void addDatanode(Datanode datanode) {
 		datanodes.add(datanode);
 		saveToDisk(datanodes, listBackupFile);
-		map.put(null, datanodes.size());
+		map.put(null, datanodes.size() - 1);
 		saveToDisk(map, mapBackupFile);
 	}
 
@@ -92,20 +99,20 @@ public class NamenodeServer implements Namenode {
 			i.printStackTrace();
 		}
 	}
-	
+
 	public Object loadFromDisk(String fileName) throws IOException {
 		Object obj = null;
-	      try {
-	         FileInputStream fileIn = new FileInputStream(fileName);
-	         ObjectInputStream in = new ObjectInputStream(fileIn);
-	         obj = in.readObject();
-	         in.close();
-	         fileIn.close();
-	         return obj;
-	      } catch (ClassNotFoundException c) {
-	         System.out.println("Class not found");
-	         c.printStackTrace();
-	      }
+		try {
+			FileInputStream fileIn = new FileInputStream(fileName);
+			ObjectInputStream in = new ObjectInputStream(fileIn);
+			obj = in.readObject();
+			in.close();
+			fileIn.close();
+			return obj;
+		} catch (ClassNotFoundException c) {
+			System.out.println("Class not found");
+			c.printStackTrace();
+		}
 		return obj;
 	}
 

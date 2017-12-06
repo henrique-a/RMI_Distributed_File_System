@@ -11,6 +11,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Scanner;
 
 import datanode.Datanode;
@@ -18,13 +19,13 @@ import datanode.DatanodeServer;
 import namenode.NamenodeServer;
 
 public class ProxyServer implements Proxy {
-	
+
 	private static String IP;
 	private static int port = 7001;
 
 	public static void main(String[] args) {
 		IP = localIP();
-	
+
 		try {
 
 			ProxyServer obj = new ProxyServer();
@@ -43,40 +44,43 @@ public class ProxyServer implements Proxy {
 
 	}
 
-	public Datanode getDatanode(String file) {
+	public List<Datanode> getDatanodes(String file) {
 		// Localiza o registry do namenode e cria um stub do namenode para encaminhar
 		// a mensagem aos outros usuários
-		Datanode datanodeStub = null;
+		List<Datanode> datanodeStubs = null;
 		try {
 			Registry namenodeRegistry = LocateRegistry.getRegistry(NamenodeServer.getIP(), NamenodeServer.getPort());
 			NamenodeServer namenodeStub = (NamenodeServer) namenodeRegistry.lookup("Namenode");
 
 			// Perguntar ao namenode onde está o datanode desse arquivo
-			datanodeStub = namenodeStub.getDatanode(file);
+			datanodeStubs = namenodeStub.getDatanodes(file);
 
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		} catch (NotBoundException e) {
 			e.printStackTrace();
 		}
-		return datanodeStub;
+		return datanodeStubs;
 
 	}
 
 	@Override
 	public void create(String file, String text) {
-		
+
 		// Localiza o registry do namenode e cria um stub do namenode para encaminhar
 		// a mensagem aos outros usuários
 		try {
 			Registry namenodeRegistry = LocateRegistry.getRegistry(NamenodeServer.getIP(), NamenodeServer.getPort());
 			NamenodeServer namenodeStub = (NamenodeServer) namenodeRegistry.lookup("Namenode");
-			
+
 			// Adicionar arquivo na tabela hash do namenode
 			namenodeStub.addFile(file);
-			
-			Datanode datanodeStub = getDatanode(file);
-			datanodeStub.create(file, text);
+
+			List<Datanode> datanodeStubs = getDatanodes(file);
+			for (Datanode datanodeStub : datanodeStubs) {
+				datanodeStub.create(file, text);
+			}
+
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -85,32 +89,35 @@ public class ProxyServer implements Proxy {
 			e.printStackTrace();
 		}
 
-		
 	}
 
 	// Método para pedir ao datanode para ler o arquivo
 	@Override
 	public void read(String file) {
 		// Perguntar ao namenode onde está o datanode desse arquivo
-		Datanode datanodeStub = getDatanode(file);
-		datanodeStub.read(file);
+		List<Datanode> datanodeStubs = getDatanodes(file);
+		datanodeStubs.get(0).read(file);
 	}
 
 	// Método para pedir ao datanode para escrever no arquivo
 	@Override
 	public void write(String file, String text) {
 		// Perguntar ao namenode onde está o datanode desse arquivo
-		Datanode datanodeStub = getDatanode(file);
-		datanodeStub.write(file, text);
+		List<Datanode> datanodeStubs = getDatanodes(file);
+		for (Datanode datanodeStub : datanodeStubs) {
+			datanodeStub.write(file, text);
+		}
 	}
 
 	@Override
 	public void delete(String file) {
 		// Perguntar ao namenode onde está o datanode desse arquivo
-		Datanode datanodeStub = getDatanode(file);
-		datanodeStub.delete(file);
-	}	
-	
+		List<Datanode> datanodeStubs = getDatanodes(file);
+		for (Datanode datanodeStub : datanodeStubs) {
+			datanodeStub.delete(file);
+		}
+	}
+
 	// Método para pegar o ip da máquina
 	public static String localIP() {
 		try (final DatagramSocket socket = new DatagramSocket()) {

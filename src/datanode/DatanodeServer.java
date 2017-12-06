@@ -75,10 +75,8 @@ public class DatanodeServer implements Datanode {
 			NamenodeServer namenodeStub = (NamenodeServer) namenodeRegistry.lookup("Namenode");
 			namenodeStub.addDatanode(this);
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (NotBoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -89,7 +87,8 @@ public class DatanodeServer implements Datanode {
 		Path file = Paths.get("datanode" + String.valueOf(this.id) + "/" + fileName); // Converte uma String em um Path
 		Charset charset = Charset.forName("UTF-8");
 		try (BufferedWriter writer = Files.newBufferedWriter(file, charset, StandardOpenOption.CREATE)) {
-			writer.write(text, 0, text.length());
+			writer.write(text, 0, text.length()); 
+			// Tem que mandar mensegem pro proxy e do proxy para o cliente dizendo que o arquivo foi criado
 		} catch (IOException x) {
 			System.err.format("IOException: %s%n", x);
 		}
@@ -115,6 +114,7 @@ public class DatanodeServer implements Datanode {
 		Charset charset = Charset.forName("UTF-8");
 		try (BufferedWriter writer = Files.newBufferedWriter(file, charset, StandardOpenOption.APPEND)) {
 			writer.write(text, 0, text.length());
+			// Tem que mandar mensegem pro proxy e do proxy para o cliente dizendo que o arquivo foi atualizado
 		} catch (IOException x) {
 			System.err.format("IOException: %s%n", x);
 		}
@@ -126,6 +126,7 @@ public class DatanodeServer implements Datanode {
 
 		try {
 			Files.delete(file);
+			// Tem que mandar mensegem pro proxy e do proxy para o cliente dizendo que o arquivo foi deletado
 		} catch (NoSuchFileException x) {
 			System.err.format("%s: no such" + " file or directory%n", file);
 		} catch (DirectoryNotEmptyException x) {
