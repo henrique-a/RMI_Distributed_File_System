@@ -15,7 +15,9 @@ public class Client {
 
 	}
 
-	public void sendRequest(String file, int operation, String proxyIP) {
+	public void sendRequest(String file, String operation) {
+		
+		
 		
 	}
 }
