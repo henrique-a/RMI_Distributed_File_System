@@ -7,4 +7,5 @@ public interface Proxy extends Remote{
 	void read(String file); 
 	void write(String file, String text);
 	void delete(String file);
+	void sendToClient(String response);
 }

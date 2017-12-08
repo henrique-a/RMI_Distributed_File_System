@@ -9,22 +9,17 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Scanner;
 
+import client.ClientServer;
 import datanode.Datanode;
-import datanode.DatanodeServer;
 import namenode.NamenodeServer;
 
 public class ProxyServer implements Proxy {
 
-	private static String IP;
 	private static int port = 7001;
 
 	public static void main(String[] args) {
-		IP = localIP();
 
 		try {
 
@@ -49,7 +44,7 @@ public class ProxyServer implements Proxy {
 		// a mensagem aos outros usuários
 		List<Datanode> datanodeStubs = null;
 		try {
-			Registry namenodeRegistry = LocateRegistry.getRegistry(NamenodeServer.getIP(), NamenodeServer.getPort());
+			Registry namenodeRegistry = LocateRegistry.getRegistry("localhost", NamenodeServer.getPort());
 			NamenodeServer namenodeStub = (NamenodeServer) namenodeRegistry.lookup("Namenode");
 
 			// Perguntar ao namenode onde está o datanode desse arquivo
@@ -70,7 +65,7 @@ public class ProxyServer implements Proxy {
 		// Localiza o registry do namenode e cria um stub do namenode para encaminhar
 		// a mensagem aos outros usuários
 		try {
-			Registry namenodeRegistry = LocateRegistry.getRegistry(NamenodeServer.getIP(), NamenodeServer.getPort());
+			Registry namenodeRegistry = LocateRegistry.getRegistry("localhost", NamenodeServer.getPort());
 			NamenodeServer namenodeStub = (NamenodeServer) namenodeRegistry.lookup("Namenode");
 
 			// Adicionar arquivo na tabela hash do namenode
@@ -118,17 +113,21 @@ public class ProxyServer implements Proxy {
 		}
 	}
 
-	// Método para pegar o ip da máquina
-	public static String localIP() {
-		try (final DatagramSocket socket = new DatagramSocket()) {
-			socket.connect(InetAddress.getByName("8.8.8.8"), 10000);
-			return socket.getLocalAddress().getHostAddress();
-		} catch (SocketException e) {
+	public static int getPort() {
+		return port;
+	}
+
+	@Override
+	public void sendToClient(String response) {
+		Registry clientRegistry;
+		try {
+			clientRegistry = LocateRegistry.getRegistry("localhost", ClientServer.getPort());
+			ClientServer clientStub = (ClientServer) clientRegistry.lookup("Client");
+			clientStub.getResponse(response);
+		} catch (RemoteException e) {
 			e.printStackTrace();
-			return "";
-		} catch (UnknownHostException e) {
+		} catch (NotBoundException e) {
 			e.printStackTrace();
-			return "";
 		}
 	}
 

@@ -25,12 +25,10 @@ import java.util.Scanner;
 import namenode.NamenodeServer;
 
 public class DatanodeServer implements Datanode {
-	private String IP;
 	private int port;
 	private int id;
 
 	public DatanodeServer(int id, int port) {
-		this.IP = localIP();
 		this.port = port;
 		this.id = id;
 		addToNamenode();
@@ -71,7 +69,7 @@ public class DatanodeServer implements Datanode {
 	public void addToNamenode() {
 		Registry namenodeRegistry;
 		try {
-			namenodeRegistry = LocateRegistry.getRegistry(NamenodeServer.getIP(), NamenodeServer.getPort());
+			namenodeRegistry = LocateRegistry.getRegistry("localhost", NamenodeServer.getPort());
 			NamenodeServer namenodeStub = (NamenodeServer) namenodeRegistry.lookup("Namenode");
 			namenodeStub.addDatanode(this);
 		} catch (RemoteException e) {
@@ -137,23 +135,6 @@ public class DatanodeServer implements Datanode {
 		}
 	}
 
-	// Método para pegar o ip da máquina
-	public String localIP() {
-		try (final DatagramSocket socket = new DatagramSocket()) {
-			socket.connect(InetAddress.getByName("8.8.8.8"), 10000);
-			return socket.getLocalAddress().getHostAddress();
-		} catch (SocketException e) {
-			e.printStackTrace();
-			return "";
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-			return "";
-		}
-	}
-
-	public String getIP() {
-		return IP;
-	}
 
 	public int getPort() {
 		return port;
