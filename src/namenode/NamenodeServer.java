@@ -41,7 +41,7 @@ public class NamenodeServer implements Namenode {
 
 	public static void main(String[] args) {
 		int port = 7002;
-		IP = localIP();
+		
 
 		try {
 
@@ -116,9 +116,6 @@ public class NamenodeServer implements Namenode {
 		return obj;
 	}
 
-	public static String getIP() {
-		return IP;
-	}
 
 	public static int getPort() {
 		return port;
@@ -126,20 +123,6 @@ public class NamenodeServer implements Namenode {
 
 	public HashMap<String, Integer> getMap() {
 		return map;
-	}
-
-	// Método para pegar o ip da máquina
-	public static String localIP() {
-		try (final DatagramSocket socket = new DatagramSocket()) {
-			socket.connect(InetAddress.getByName("8.8.8.8"), 10000);
-			return socket.getLocalAddress().getHostAddress();
-		} catch (SocketException e) {
-			e.printStackTrace();
-			return "";
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-			return "";
-		}
 	}
 
 }

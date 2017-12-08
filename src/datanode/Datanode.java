@@ -1,10 +1,11 @@
 package datanode;
 
 import java.rmi.Remote;
+import java.rmi.RemoteException;
 
 public interface Datanode extends Remote{
-	void create(String fileName, String text);
-	void read(String fileName);
-	void write(String fileName, String text);
-	void delete(String fileName);
+	void create(String fileName, String text) throws RemoteException;
+	void read(String fileName) throws RemoteException;
+	void write(String fileName, String text) throws RemoteException;
+	void delete(String fileName) throws RemoteException;
 }

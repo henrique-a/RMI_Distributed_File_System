@@ -1,9 +1,6 @@
 package proxy;
 
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -91,7 +88,11 @@ public class ProxyServer implements Proxy {
 	public void read(String file) {
 		// Perguntar ao namenode onde está o datanode desse arquivo
 		List<Datanode> datanodeStubs = getDatanodes(file);
-		datanodeStubs.get(0).read(file);
+		try {
+			datanodeStubs.get(0).read(file);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
 	}
 
 	// Método para pedir ao datanode para escrever no arquivo
@@ -100,7 +101,11 @@ public class ProxyServer implements Proxy {
 		// Perguntar ao namenode onde está o datanode desse arquivo
 		List<Datanode> datanodeStubs = getDatanodes(file);
 		for (Datanode datanodeStub : datanodeStubs) {
-			datanodeStub.write(file, text);
+			try {
+				datanodeStub.write(file, text);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -109,7 +114,11 @@ public class ProxyServer implements Proxy {
 		// Perguntar ao namenode onde está o datanode desse arquivo
 		List<Datanode> datanodeStubs = getDatanodes(file);
 		for (Datanode datanodeStub : datanodeStubs) {
-			datanodeStub.delete(file);
+			try {
+				datanodeStub.delete(file);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
