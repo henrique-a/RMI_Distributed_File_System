@@ -52,6 +52,8 @@ public class DatanodeServer implements Datanode, Serializable {
 
 			DatanodeServer obj = new DatanodeServer(id, port);
 			Datanode stub = (Datanode) UnicastRemoteObject.exportObject(obj, obj.getPort());
+			String IP = localIP();
+			System.setProperty("java.rmi.server.hostname", IP);
 
 			// Fazendo o bind do stub no registrador
 			Registry registry = LocateRegistry.createRegistry(obj.getPort());
@@ -139,12 +141,26 @@ public class DatanodeServer implements Datanode, Serializable {
 		}
 	}
 
-
-	public int getPort() {
+		public int getPort() {
 		return port;
 	}
 
 	public int getId() {
 		return id;
 	}
+	
+	public static String localIP() {
+		try (final DatagramSocket socket = new DatagramSocket()) {
+			socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+			return socket.getLocalAddress().getHostAddress();
+		} catch (SocketException e) {
+			e.printStackTrace();
+			return "";
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			return "";
+		}
+
+	}
+
 }

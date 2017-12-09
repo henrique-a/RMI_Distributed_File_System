@@ -5,10 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -19,7 +15,6 @@ import java.util.List;
 import datanode.Datanode;
 
 public class NamenodeServer implements Namenode {
-	private static String IP;
 	private static int port = 7002;
 	HashMap<String, Integer> map;
 	List<Datanode> datanodes;
@@ -64,11 +59,11 @@ public class NamenodeServer implements Namenode {
 		int id = map.get(file);
 		List<Datanode> fileDatanodes = new ArrayList<>();
 		fileDatanodes.add(datanodes.get(id));
-		if (id == datanodes.size() - 1) {
-			fileDatanodes.add(datanodes.get(0));
-		} else {
-			fileDatanodes.add(datanodes.get(id + 1));
-		}
+		//if (id == datanodes.size() - 1) {
+		//	fileDatanodes.add(datanodes.get(0));
+		//} else {
+		//	fileDatanodes.add(datanodes.get(id + 1));
+		//}
 		return fileDatanodes;
 	}
 

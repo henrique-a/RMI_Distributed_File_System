@@ -44,7 +44,6 @@ public class ClientServer implements Client {
 
 	public void sendRequest(String file, int operation) {
 		
-		Scanner sc = new Scanner(System.in);	
 		String text = "";
 		try {
 			Registry proxyRegistry = LocateRegistry.getRegistry("localhost", ProxyServer.getPort());
@@ -75,7 +74,7 @@ public class ClientServer implements Client {
 				proxyStub.write(file, text);
 				break;
 			case 4: // Deletar
-				System.out.println("Solicitacao de Exclusão do Arquivo: "+file+".txt");
+				System.out.println("Solicitacao de Exclusï¿½o do Arquivo: "+file+".txt");
 				proxyStub.delete(file);
 				break;
 			case 5:
@@ -97,7 +96,6 @@ public class ClientServer implements Client {
 			  line = sc.nextLine();
 			  text += line + "\n";
 		}
-		//sc.close();
 		return text;
 	}
 
