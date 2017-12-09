@@ -25,6 +25,8 @@ import java.util.Scanner;
 
 import namenode.Namenode;
 import namenode.NamenodeServer;
+import proxy.Proxy;
+import proxy.ProxyServer;
 
 public class DatanodeServer implements Datanode, Serializable {
 	
@@ -92,10 +94,14 @@ public class DatanodeServer implements Datanode, Serializable {
 		Charset charset = Charset.forName("UTF-8");
 		try (BufferedWriter writer = Files.newBufferedWriter(file, charset, StandardOpenOption.CREATE)) {
 			writer.write(text, 0, text.length()); 
-			// Tem que mandar mensegem pro proxy e do proxy para o cliente dizendo que o arquivo foi criado
-		} catch (IOException x) {
+			Registry proxyRegistry = LocateRegistry.getRegistry("localhost", ProxyServer.getPort());
+			Proxy proxyStub = (Proxy) proxyRegistry.lookup("Proxy");
+			proxyStub.sendToClient("Arquivo " + fileName + ".txt criado!");
+			} catch (IOException x) {
 			System.err.format("IOException: %s%n", x);
-		}
+		} catch (NotBoundException e) {
+				e.printStackTrace();
+			}
 	}
 
 	@Override
@@ -103,12 +109,19 @@ public class DatanodeServer implements Datanode, Serializable {
 		Path file = Paths.get("datanode" + String.valueOf(this.id) + "/" + fileName); // Converte uma String em um Path
 		Charset charset = Charset.forName("UTF-8");
 		try (BufferedReader reader = Files.newBufferedReader(file, charset)) {
+			String text = null;
 			String line = null;
 			while ((line = reader.readLine()) != null) {
-				System.out.println(line); // Tem que mandar isso pro proxy e do proxy para o cliente
+				text += line; // Tem que mandar isso pro proxy e do proxy para o cliente
 			}
+			Registry proxyRegistry = LocateRegistry.getRegistry("localhost", ProxyServer.getPort());
+			Proxy proxyStub = (Proxy) proxyRegistry.lookup("Proxy");
+			proxyStub.sendToClient("Arquivo " + fileName + ".txt criado!");
+			proxyStub.sendToClient(text);
 		} catch (IOException x) {
 			System.err.format("IOException: %s%n", x);
+		} catch (NotBoundException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -118,9 +131,13 @@ public class DatanodeServer implements Datanode, Serializable {
 		Charset charset = Charset.forName("UTF-8");
 		try (BufferedWriter writer = Files.newBufferedWriter(file, charset, StandardOpenOption.APPEND)) {
 			writer.write(text, 0, text.length());
-			// Tem que mandar mensegem pro proxy e do proxy para o cliente dizendo que o arquivo foi atualizado
+			Registry proxyRegistry = LocateRegistry.getRegistry("localhost", ProxyServer.getPort());
+			Proxy proxyStub = (Proxy) proxyRegistry.lookup("Proxy");
+			proxyStub.sendToClient("Arquivo " + fileName + ".txt editado!");
 		} catch (IOException x) {
 			System.err.format("IOException: %s%n", x);
+		} catch (NotBoundException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -130,7 +147,9 @@ public class DatanodeServer implements Datanode, Serializable {
 
 		try {
 			Files.delete(file);
-			// Tem que mandar mensegem pro proxy e do proxy para o cliente dizendo que o arquivo foi deletado
+			Registry proxyRegistry = LocateRegistry.getRegistry("localhost", ProxyServer.getPort());
+			Proxy proxyStub = (Proxy) proxyRegistry.lookup("Proxy");
+			proxyStub.sendToClient("Arquivo " + fileName + ".txt deletado!");
 		} catch (NoSuchFileException x) {
 			System.err.format("%s: no such" + " file or directory%n", file);
 		} catch (DirectoryNotEmptyException x) {
@@ -138,6 +157,8 @@ public class DatanodeServer implements Datanode, Serializable {
 		} catch (IOException x) {
 			// File permission problems are caught here.
 			System.err.println(x);
+		} catch (NotBoundException e) {
+			e.printStackTrace();
 		}
 	}
 
