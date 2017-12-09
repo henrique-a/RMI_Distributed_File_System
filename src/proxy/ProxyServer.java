@@ -60,7 +60,6 @@ public class ProxyServer implements Proxy {
 
 	@Override
 	public void create(String file, String text) {
-
 		// Localiza o registry do namenode e cria um stub do namenode para encaminhar
 		// a mensagem aos outros usuários
 		try {

@@ -1,4 +1,4 @@
-/proxy/
-/datanode/
 /client/
+/datanode/
 /namenode/
+/proxy/

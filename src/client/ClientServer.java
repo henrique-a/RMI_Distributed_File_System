@@ -18,8 +18,6 @@ public class ClientServer implements Client {
 	public static int port = 7000;
 	
 	public static void main(String[] args) {
-		
-		
 		// Thread para a interface do cliente que expõe os servicos oferecidos pelo
 		// sistema de arquivos distribuído
 		ClientView clientView = new ClientView();
@@ -46,32 +44,43 @@ public class ClientServer implements Client {
 
 	public void sendRequest(String file, int operation) {
 		
+		Scanner sc = new Scanner(System.in);	
 		String text = "";
 		try {
-			
 			Registry proxyRegistry = LocateRegistry.getRegistry("localhost", ProxyServer.getPort());
 			Proxy proxyStub = (Proxy) proxyRegistry.lookup("Proxy");
 			
 			switch (operation) {
 			case 1: // Criar
+				System.out.println("Solicitacao de Criacao do Arquivo: "+file+".txt");
 				text = getText();
 				proxyStub.create(file, text);
+//				System.out.println("Ja deseja escrever algo no arquivo? Escreva 'S' ou 'N'");
+//				String confirmacao = sc.next();
+//				if(confirmacao.equals("S")) {
+//					text = getText();
+//					proxyStub.create(file, text);
+//				}if(confirmacao.equals("N")) {
+//					text = getText();
+//					proxyStub.create(file, "");
+//				}
 				break;
 			case 2: // Ler
+				System.out.println("Solicitacao de Leitura do Arquivo: "+file+".txt");
 				proxyStub.read(file);
 				break;
-			case 3:	// Escrever					
+			case 3:	// Escrever			
+				System.out.println("Solicitacao de Escrita no Arquivo: "+file+".txt");
 				text = getText(); 
 				proxyStub.write(file, text);
 				break;
 			case 4: // Deletar
+				System.out.println("Solicitacao de Exclus�o do Arquivo: "+file+".txt");
 				proxyStub.delete(file);
 				break;
 			case 5:
-			
+				
 			}
-			
-
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		} catch (NotBoundException e) {
@@ -81,10 +90,10 @@ public class ClientServer implements Client {
 	
 	public String getText() {
 		Scanner sc = new Scanner(System.in);	
-		System.out.println("Escreva o seu texto a baixo. Após escrever tudo, digite '\\e' para enviar o texto.");
+		System.out.println("Escreva o seu texto a baixo. Apos escrever tudo, digite '\\e' para enviar o texto.");
 		String line = "";
 		String text = "";
-		while(!line.equals("ok")){
+		while(!line.equals("\\e")){
 			  line = sc.nextLine();
 			  text += line + "\n";
 		}
