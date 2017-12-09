@@ -3,6 +3,7 @@ package client;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -42,7 +43,7 @@ public class ClientServer implements Client {
 		t.start();		
 	}
 
-	public void sendRequest(String file, int operation) {
+	public void sendRequest(String file, int operation) throws InputMismatchException {
 		
 		String text = "";
 		try {
@@ -78,6 +79,8 @@ public class ClientServer implements Client {
 				proxyStub.delete(file);
 				break;
 			case 5:
+			default:
+				throw new InputMismatchException();
 				
 			}
 		} catch (RemoteException e) {

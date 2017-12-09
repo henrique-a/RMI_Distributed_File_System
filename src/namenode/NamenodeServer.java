@@ -56,15 +56,21 @@ public class NamenodeServer implements Namenode {
 
 	@Override
 	public List<Datanode> getDatanodes(String file) {
-		int id = map.get(file);
 		List<Datanode> fileDatanodes = new ArrayList<>();
-		fileDatanodes.add(datanodes.get(id));
-		//if (id == datanodes.size() - 1) {
-		//	fileDatanodes.add(datanodes.get(0));
-		//} else {
-		//	fileDatanodes.add(datanodes.get(id + 1));
-		//}
-		return fileDatanodes;
+
+		try {
+			int id = map.get(file);
+			fileDatanodes.add(datanodes.get(id));
+			//if (id == datanodes.size() - 1) {
+			//	fileDatanodes.add(datanodes.get(0));
+			//} else {
+			//	fileDatanodes.add(datanodes.get(id + 1));
+			//}
+			return fileDatanodes;
+		} catch (NullPointerException e) {
+			throw new NullPointerException();
+		}
+		
 	}
 
 	@Override
@@ -116,6 +122,10 @@ public class NamenodeServer implements Namenode {
 
 	public HashMap<String, Integer> getMap() {
 		return map;
+	}
+	
+	public void sendError(String msg) {
+		
 	}
 
 }

@@ -1,5 +1,6 @@
 package client;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class ClientView implements Runnable {
@@ -14,11 +15,15 @@ public class ClientView implements Runnable {
 		
 		while(true) {
 			Scanner sc = new Scanner(System.in);
-
-			int comando = sc.nextInt();
-			System.out.println("Escreva o nome do arquivo desejado:");
-			String file = sc.next();
-			clientServer.sendRequest(file, comando);		
+			try {
+				int comando = sc.nextInt();
+				System.out.println("Escreva o nome do arquivo desejado:");
+				String file = sc.next();
+				clientServer.sendRequest(file, comando);
+			} catch (InputMismatchException e) {
+				System.err.println("Opção inválida!");
+			}
+					
 		}
 		
 		

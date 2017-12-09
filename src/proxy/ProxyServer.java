@@ -38,7 +38,7 @@ public class ProxyServer implements Proxy {
 
 	}
 
-	public List<Datanode> getDatanodes(String file) {
+	public List<Datanode> getDatanodes(String file) throws NullPointerException {
 		// Localiza o registry do namenode e cria um stub do namenode para encaminhar
 		// a mensagem aos outros usuários
 		List<Datanode> datanodeStubs = null;
@@ -47,7 +47,12 @@ public class ProxyServer implements Proxy {
 			Namenode namenodeStub = (Namenode) namenodeRegistry.lookup("Namenode");
 
 			// Perguntar ao namenode onde está o datanode desse arquivo
-			datanodeStubs = namenodeStub.getDatanodes(file);
+			try {
+				datanodeStubs = namenodeStub.getDatanodes(file);
+			} catch (NullPointerException e) {
+				throw new NullPointerException();
+			}
+			
 
 		} catch (RemoteException e) {
 			e.printStackTrace();
@@ -68,11 +73,16 @@ public class ProxyServer implements Proxy {
 
 			// Adicionar arquivo na tabela hash do namenode
 			namenodeStub.addFile(file);
-
-			List<Datanode> datanodeStubs = getDatanodes(file);
-			for (Datanode datanodeStub : datanodeStubs) {
-				datanodeStub.create(file, text);
+			
+			try {
+				List<Datanode> datanodeStubs = getDatanodes(file);
+				for (Datanode datanodeStub : datanodeStubs) {
+					datanodeStub.create(file, text);
+				}
+			} catch (NullPointerException e) {
+				sendToClient("Arquivo inexistente!");
 			}
+			
 
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
@@ -87,40 +97,48 @@ public class ProxyServer implements Proxy {
 	// Método para pedir ao datanode para ler o arquivo
 	@Override
 	public void read(String file) {
-		// Perguntar ao namenode onde está o datanode desse arquivo
-		List<Datanode> datanodeStubs = getDatanodes(file);
 		try {
+			// Perguntar ao namenode onde está o datanode desse arquivo			
+			List<Datanode> datanodeStubs = getDatanodes(file);			
 			datanodeStubs.get(0).read(file);
 		} catch (RemoteException e) {
 			e.printStackTrace();
+		} catch (NullPointerException e) {
+			sendToClient("Arquivo inexistente!");
 		}
 	}
 
 	// Método para pedir ao datanode para escrever no arquivo
 	@Override
 	public void write(String file, String text) {
-		// Perguntar ao namenode onde está o datanode desse arquivo
-		List<Datanode> datanodeStubs = getDatanodes(file);
-		for (Datanode datanodeStub : datanodeStubs) {
-			try {
+		try {
+			// Perguntar ao namenode onde está o datanode desse arquivo
+			List<Datanode> datanodeStubs = getDatanodes(file);
+			for (Datanode datanodeStub : datanodeStubs) {
 				datanodeStub.write(file, text);
-			} catch (RemoteException e) {
-				e.printStackTrace();
 			}
-		}
+		} catch (NullPointerException e) {
+			sendToClient("Arquivo inexistente!");
+			
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}		
 	}
 
 	@Override
 	public void delete(String file) {
-		// Perguntar ao namenode onde está o datanode desse arquivo
-		List<Datanode> datanodeStubs = getDatanodes(file);
-		for (Datanode datanodeStub : datanodeStubs) {
-			try {
+		try {
+			// Perguntar ao namenode onde está o datanode desse arquivo
+			List<Datanode> datanodeStubs = getDatanodes(file);
+			for (Datanode datanodeStub : datanodeStubs) {
 				datanodeStub.delete(file);
-			} catch (RemoteException e) {
-				e.printStackTrace();
 			}
+		} catch (NullPointerException e) {
+			sendToClient("Arquivo inexistente!");
+		} catch (RemoteException e) {
+			e.printStackTrace();
 		}
+		
 	}
 
 	public static int getPort() {
@@ -140,5 +158,5 @@ public class ProxyServer implements Proxy {
 			e.printStackTrace();
 		}
 	}
-
+	
 }

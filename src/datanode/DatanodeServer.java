@@ -109,14 +109,13 @@ public class DatanodeServer implements Datanode, Serializable {
 		Path file = Paths.get("datanode" + String.valueOf(this.id) + "/" + fileName); // Converte uma String em um Path
 		Charset charset = Charset.forName("UTF-8");
 		try (BufferedReader reader = Files.newBufferedReader(file, charset)) {
-			String text = null;
-			String line = null;
+			String text = "";
+			String line = "";
 			while ((line = reader.readLine()) != null) {
-				text += line; // Tem que mandar isso pro proxy e do proxy para o cliente
+				text += line;
 			}
 			Registry proxyRegistry = LocateRegistry.getRegistry("localhost", ProxyServer.getPort());
 			Proxy proxyStub = (Proxy) proxyRegistry.lookup("Proxy");
-			proxyStub.sendToClient("Arquivo " + fileName + ".txt criado!");
 			proxyStub.sendToClient(text);
 		} catch (IOException x) {
 			System.err.format("IOException: %s%n", x);
