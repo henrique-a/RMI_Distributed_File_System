@@ -8,8 +8,10 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 
+import client.Client;
 import client.ClientServer;
 import datanode.Datanode;
+import namenode.Namenode;
 import namenode.NamenodeServer;
 
 public class ProxyServer implements Proxy {
@@ -42,7 +44,7 @@ public class ProxyServer implements Proxy {
 		List<Datanode> datanodeStubs = null;
 		try {
 			Registry namenodeRegistry = LocateRegistry.getRegistry("localhost", NamenodeServer.getPort());
-			NamenodeServer namenodeStub = (NamenodeServer) namenodeRegistry.lookup("Namenode");
+			Namenode namenodeStub = (Namenode) namenodeRegistry.lookup("Namenode");
 
 			// Perguntar ao namenode onde está o datanode desse arquivo
 			datanodeStubs = namenodeStub.getDatanodes(file);
@@ -63,7 +65,7 @@ public class ProxyServer implements Proxy {
 		// a mensagem aos outros usuários
 		try {
 			Registry namenodeRegistry = LocateRegistry.getRegistry("localhost", NamenodeServer.getPort());
-			NamenodeServer namenodeStub = (NamenodeServer) namenodeRegistry.lookup("Namenode");
+			Namenode namenodeStub = (Namenode) namenodeRegistry.lookup("Namenode");
 
 			// Adicionar arquivo na tabela hash do namenode
 			namenodeStub.addFile(file);
@@ -131,7 +133,7 @@ public class ProxyServer implements Proxy {
 		Registry clientRegistry;
 		try {
 			clientRegistry = LocateRegistry.getRegistry("localhost", ClientServer.getPort());
-			ClientServer clientStub = (ClientServer) clientRegistry.lookup("Client");
+			Client clientStub = (Client) clientRegistry.lookup("Client");
 			clientStub.getResponse(response);
 		} catch (RemoteException e) {
 			e.printStackTrace();

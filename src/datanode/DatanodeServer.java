@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -22,9 +23,12 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Scanner;
 
+import namenode.Namenode;
 import namenode.NamenodeServer;
 
-public class DatanodeServer implements Datanode {
+public class DatanodeServer implements Datanode, Serializable {
+	
+	private static final long serialVersionUID = 797830935937455551L;
 	private int port;
 	private int id;
 
@@ -67,10 +71,10 @@ public class DatanodeServer implements Datanode {
 	}
 
 	public void addToNamenode() {
-		Registry namenodeRegistry;
+		
 		try {
-			namenodeRegistry = LocateRegistry.getRegistry("localhost", NamenodeServer.getPort());
-			NamenodeServer namenodeStub = (NamenodeServer) namenodeRegistry.lookup("Namenode");
+			Registry namenodeRegistry = LocateRegistry.getRegistry("localhost", NamenodeServer.getPort());
+			Namenode namenodeStub = (Namenode) namenodeRegistry.lookup("Namenode");
 			namenodeStub.addDatanode(this);
 		} catch (RemoteException e) {
 			e.printStackTrace();

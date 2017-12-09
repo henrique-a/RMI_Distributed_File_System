@@ -20,7 +20,7 @@ import datanode.Datanode;
 
 public class NamenodeServer implements Namenode {
 	private static String IP;
-	private static int port;
+	private static int port = 7002;
 	HashMap<String, Integer> map;
 	List<Datanode> datanodes;
 	String mapBackupFile = "map.ser";
@@ -40,8 +40,6 @@ public class NamenodeServer implements Namenode {
 	}
 
 	public static void main(String[] args) {
-		int port = 7002;
-		
 
 		try {
 

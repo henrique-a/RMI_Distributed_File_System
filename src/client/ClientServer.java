@@ -7,7 +7,8 @@ import java.util.Scanner;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
-import proxy.ProxyServer;;
+import proxy.ProxyServer;
+import proxy.Proxy;
 
 
 
@@ -49,19 +50,23 @@ public class ClientServer implements Client {
 		try {
 			
 			Registry proxyRegistry = LocateRegistry.getRegistry("localhost", ProxyServer.getPort());
-			ProxyServer proxyStub = (ProxyServer) proxyRegistry.lookup("Proxy");
+			Proxy proxyStub = (Proxy) proxyRegistry.lookup("Proxy");
 			
 			switch (operation) {
-			case 1:
+			case 1: // Criar
 				text = getText();
 				proxyStub.create(file, text);
-			case 2:
+				break;
+			case 2: // Ler
 				proxyStub.read(file);
-			case 3:						
-				text = getText();
-				proxyStub.create(file, text);
-			case 4:
+				break;
+			case 3:	// Escrever					
+				text = getText(); 
+				proxyStub.write(file, text);
+				break;
+			case 4: // Deletar
 				proxyStub.delete(file);
+				break;
 			case 5:
 			
 			}
@@ -76,14 +81,14 @@ public class ClientServer implements Client {
 	
 	public String getText() {
 		Scanner sc = new Scanner(System.in);	
-		System.out.print("Escreva o seu texto a baixo. Após escrever tudo, digite '\\e' para enviar o texto.");
+		System.out.println("Escreva o seu texto a baixo. Após escrever tudo, digite '\\e' para enviar o texto.");
 		String line = "";
 		String text = "";
-		while(!line.equals("\\e")){
+		while(!line.equals("ok")){
 			  line = sc.nextLine();
 			  text += line + "\n";
 		}
-		sc.close();
+		//sc.close();
 		return text;
 	}
 
