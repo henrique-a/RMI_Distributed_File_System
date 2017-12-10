@@ -65,24 +65,18 @@ public class ProxyServer implements Proxy {
 
 	@Override
 	public void create(String file, String text) {
-		// Localiza o registry do namenode e cria um stub do namenode para encaminhar
-		// a mensagem aos outros usuários
 		try {
+			// Localiza o registry do namenode e cria um stub do namenode para encaminhar
+			// a mensagem aos outros usuários			
 			Registry namenodeRegistry = LocateRegistry.getRegistry("localhost", NamenodeServer.getPort());
 			Namenode namenodeStub = (Namenode) namenodeRegistry.lookup("Namenode");
-
+			List<Datanode> datanodes = getDatanodes(file);
 			// Adicionar arquivo na tabela hash do namenode
 			System.out.println("Solicitacao de Criacao do Arquivo: "+file+".txt");
-			namenodeStub.addFile(file);
 			
-			try {
-				List<Datanode> datanodeStubs = getDatanodes(file);
-				for (Datanode datanodeStub : datanodeStubs) {
-					datanodeStub.create(file, text);
-					}
-				System.out.println("Arquivo criado com sucesso!");
-			} catch (NullPointerException e) {
-				sendToClient("Arquivo inexistente!");
+			namenodeStub.addFile(file);
+			for (Datanode datanodeStub : datanodes) {
+				datanodeStub.create(file, text);
 			}
 			
 		} catch (RemoteException e) {
@@ -91,6 +85,8 @@ public class ProxyServer implements Proxy {
 		} catch (NotBoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (NullPointerException e) {
+			sendToClient("Serviço Indisponível");
 		}
 
 	}
@@ -133,12 +129,12 @@ public class ProxyServer implements Proxy {
 	public void delete(String file) {
 		try {
 			// Perguntar ao namenode onde está o datanode desse arquivo
-			System.out.println("Solicitacao de Exclus�o do Arquivo: "+file+".txt");
+			System.out.println("Solicitacao de Exclusão do Arquivo: "+file+".txt");
 			List<Datanode> datanodeStubs = getDatanodes(file);
 			for (Datanode datanodeStub : datanodeStubs) {
 				datanodeStub.delete(file);
 			}
-			System.out.println("Exclus�o realizada com sucesso!");
+			System.out.println("Exclusão realizada com sucesso!");
 		} catch (NullPointerException e) {
 			sendToClient("Arquivo inexistente!");
 		} catch (RemoteException e) {
@@ -153,9 +149,8 @@ public class ProxyServer implements Proxy {
 
 	@Override
 	public void sendToClient(String response) {
-		Registry clientRegistry;
 		try {
-			clientRegistry = LocateRegistry.getRegistry("localhost", ClientServer.getPort());
+			Registry clientRegistry = LocateRegistry.getRegistry("localhost", ClientServer.getPort());
 			Client clientStub = (Client) clientRegistry.lookup("Client");
 			clientStub.getResponse(response);
 		} catch (RemoteException e) {
