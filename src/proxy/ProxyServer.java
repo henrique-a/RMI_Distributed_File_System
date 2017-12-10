@@ -72,18 +72,19 @@ public class ProxyServer implements Proxy {
 			Namenode namenodeStub = (Namenode) namenodeRegistry.lookup("Namenode");
 
 			// Adicionar arquivo na tabela hash do namenode
+			System.out.println("Solicitacao de Criacao do Arquivo: "+file+".txt");
 			namenodeStub.addFile(file);
 			
 			try {
 				List<Datanode> datanodeStubs = getDatanodes(file);
 				for (Datanode datanodeStub : datanodeStubs) {
 					datanodeStub.create(file, text);
-				}
+					}
+				System.out.println("Arquivo criado com sucesso!");
 			} catch (NullPointerException e) {
 				sendToClient("Arquivo inexistente!");
 			}
 			
-
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -98,7 +99,8 @@ public class ProxyServer implements Proxy {
 	@Override
 	public void read(String file) {
 		try {
-			// Perguntar ao namenode onde está o datanode desse arquivo			
+			// Perguntar ao namenode onde está o datanode desse arquivo
+			System.out.println("Solicitacao de Leitura do Arquivo: "+file+".txt");
 			List<Datanode> datanodeStubs = getDatanodes(file);			
 			datanodeStubs.get(0).read(file);
 		} catch (RemoteException e) {
@@ -113,10 +115,12 @@ public class ProxyServer implements Proxy {
 	public void write(String file, String text) {
 		try {
 			// Perguntar ao namenode onde está o datanode desse arquivo
+			System.out.println("Solicitacao de Escrita do Arquivo: "+file+".txt");
 			List<Datanode> datanodeStubs = getDatanodes(file);
 			for (Datanode datanodeStub : datanodeStubs) {
 				datanodeStub.write(file, text);
 			}
+			System.out.println("Escrita realizada com sucesso!");
 		} catch (NullPointerException e) {
 			sendToClient("Arquivo inexistente!");
 			
@@ -129,10 +133,12 @@ public class ProxyServer implements Proxy {
 	public void delete(String file) {
 		try {
 			// Perguntar ao namenode onde está o datanode desse arquivo
+			System.out.println("Solicitacao de Exclus�o do Arquivo: "+file+".txt");
 			List<Datanode> datanodeStubs = getDatanodes(file);
 			for (Datanode datanodeStub : datanodeStubs) {
 				datanodeStub.delete(file);
 			}
+			System.out.println("Exclus�o realizada com sucesso!");
 		} catch (NullPointerException e) {
 			sendToClient("Arquivo inexistente!");
 		} catch (RemoteException e) {

@@ -52,7 +52,6 @@ public class ClientServer implements Client {
 			
 			switch (operation) {
 			case 1: // Criar
-				System.out.println("Solicitacao de Criacao do Arquivo: "+file+".txt");
 				text = getText();
 				proxyStub.create(file, text);
 //				System.out.println("Ja deseja escrever algo no arquivo? Escreva 'S' ou 'N'");
@@ -66,16 +65,13 @@ public class ClientServer implements Client {
 //				}
 				break;
 			case 2: // Ler
-				System.out.println("Solicitacao de Leitura do Arquivo: "+file+".txt");
 				proxyStub.read(file);
 				break;
 			case 3:	// Escrever			
-				System.out.println("Solicitacao de Escrita no Arquivo: "+file+".txt");
 				text = getText(); 
 				proxyStub.write(file, text);
 				break;
 			case 4: // Deletar
-				System.out.println("Solicitacao de Exclus�o do Arquivo: "+file+".txt");
 				proxyStub.delete(file);
 				break;
 			case 5:

@@ -20,6 +20,7 @@ public class ClientView implements Runnable {
 				System.out.println("Escreva o nome do arquivo desejado:");
 				String file = sc.next();
 				clientServer.sendRequest(file, comando);
+//				sc.close();
 			} catch (InputMismatchException e) {
 				System.err.println("Opção inválida!");
 			}
