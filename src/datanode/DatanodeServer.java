@@ -50,8 +50,6 @@ public class DatanodeServer implements Datanode, Serializable {
 		
 		createDirectory(id); // Método para criar um diretório do datanode
 		
-		sc.close();
-		
 		try {
 
 			DatanodeServer obj = new DatanodeServer(id, port);

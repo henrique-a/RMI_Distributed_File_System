@@ -124,8 +124,4 @@ public class NamenodeServer implements Namenode {
 		return map;
 	}
 	
-	public void sendError(String msg) {
-		
-	}
-
 }

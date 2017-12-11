@@ -12,7 +12,7 @@ public class ClientView implements Runnable {
 		System.out.println("Bem vindo!");
 
 			while(comando != 6) {
-				System.out.println("Escolha a opera��o abaixo:");
+				System.out.println("Escolha a operação abaixo:");
 				System.out.println("1.Criar \n2.Ler \n3.Escrever \n4.Deletar \n5.Listar \n6.Sair");
 				Scanner sc = new Scanner(System.in);
 				try {
@@ -20,11 +20,10 @@ public class ClientView implements Runnable {
 					System.out.println("Escreva o nome do arquivo desejado:");
 					String file = sc.next();
 					clientServer.sendRequest(file, comando);
-//					sc.close();
 				} catch (InputMismatchException e) {
 					System.err.println("Opção inválida!");
 				}		
 			}
-		System.out.println("Sess�o Encerrada");
+		System.out.println("Sessão Encerrada");
 	}
 }

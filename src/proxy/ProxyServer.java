@@ -70,8 +70,9 @@ public class ProxyServer implements Proxy {
 			// a mensagem aos outros usuários			
 			Registry namenodeRegistry = LocateRegistry.getRegistry("localhost", NamenodeServer.getPort());
 			Namenode namenodeStub = (Namenode) namenodeRegistry.lookup("Namenode");
-			List<Datanode> datanodes = getDatanodes(file);
 			// Adicionar arquivo na tabela hash do namenode
+			namenodeStub.addFile(file);
+			List<Datanode> datanodes = getDatanodes(file);
 			System.out.println("Solicitacao de Criacao do Arquivo: "+file+".txt");
 			
 			namenodeStub.addFile(file);
