@@ -75,6 +75,8 @@ public class ClientServer implements Client {
 				proxyStub.delete(file);
 				break;
 			case 5:
+				
+				break;
 			default:
 				throw new InputMismatchException();
 				

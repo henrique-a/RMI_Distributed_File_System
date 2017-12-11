@@ -86,7 +86,7 @@ public class ProxyServer implements Proxy {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (NullPointerException e) {
-			sendToClient("Serviço Indisponível");
+			sendToClient("Servico Indisponivel");
 		}
 
 	}
@@ -129,12 +129,12 @@ public class ProxyServer implements Proxy {
 	public void delete(String file) {
 		try {
 			// Perguntar ao namenode onde está o datanode desse arquivo
-			System.out.println("Solicitacao de Exclusão do Arquivo: "+file+".txt");
+			System.out.println("Solicitacao de Exclusao do Arquivo: "+file+".txt");
 			List<Datanode> datanodeStubs = getDatanodes(file);
 			for (Datanode datanodeStub : datanodeStubs) {
 				datanodeStub.delete(file);
 			}
-			System.out.println("Exclusão realizada com sucesso!");
+			System.out.println("Exclusao realizada com sucesso!");
 		} catch (NullPointerException e) {
 			sendToClient("Arquivo inexistente!");
 		} catch (RemoteException e) {
