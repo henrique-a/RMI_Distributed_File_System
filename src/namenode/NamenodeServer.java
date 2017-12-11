@@ -17,20 +17,14 @@ import datanode.Datanode;
 public class NamenodeServer implements Namenode {
 	private static int port = 7002;
 	HashMap<String, Integer> map;
-	List<Datanode> datanodes;
 	String mapBackupFile = "map.ser";
-	String listBackupFile = "list.ser";
+	int numberOfDatadones = 0;
 
 	public NamenodeServer() {
 		try {
 			this.map = (HashMap<String, Integer>) loadFromDisk(mapBackupFile);
 		} catch (IOException e) {
 			this.map = new HashMap<>();
-		}
-		try {
-			this.datanodes = (List<Datanode>) loadFromDisk(listBackupFile);
-		} catch (IOException e) {
-			this.datanodes = new ArrayList<>();
 		}
 	}
 
@@ -55,18 +49,12 @@ public class NamenodeServer implements Namenode {
 	}
 
 	@Override
-	public List<Datanode> getDatanodes(String file) {
-		List<Datanode> fileDatanodes = new ArrayList<>();
-
+	public int getDatanode(String file) {
 		try {
+			System.out.println("Entrou no get");
 			int id = map.get(file);
-			fileDatanodes.add(datanodes.get(id));
-			//if (id == datanodes.size() - 1) {
-			//	fileDatanodes.add(datanodes.get(0));
-			//} else {
-			//	fileDatanodes.add(datanodes.get(id + 1));
-			//}
-			return fileDatanodes;
+			System.out.println("Id retornado: " + String.valueOf(id));
+			return id;
 		} catch (NullPointerException e) {
 			throw new NullPointerException();
 		}
@@ -74,16 +62,17 @@ public class NamenodeServer implements Namenode {
 	}
 
 	@Override
-	public void addDatanode(Datanode datanode) {
-		datanodes.add(datanode);
-		saveToDisk(datanodes, listBackupFile);
-		map.put(null, datanodes.size() - 1);
+	public void addDatanode(int id) {
+		numberOfDatadones += 1;
+		map.put(null, id);
 		saveToDisk(map, mapBackupFile);
 	}
 
 	@Override
 	public void addFile(String file) {
-		map.put(file, new Integer(Math.abs(file.hashCode() % map.values().size())));
+		System.out.println("Número de valores: " + numberOfDatadones);
+		map.put(file, new Integer(Math.abs(file.hashCode() % numberOfDatadones) + 1));
+		System.out.println("Salvo no datanode " + String.valueOf(Math.abs(file.hashCode() % numberOfDatadones) + 1));
 		saveToDisk(map, mapBackupFile);
 	}
 
@@ -115,16 +104,6 @@ public class NamenodeServer implements Namenode {
 		return obj;
 	}
 
-	public List<Datanode> list() {
-		List<Datanode> datan = null;
-		try {
-			datan = (List<Datanode>) loadFromDisk(listBackupFile);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return datan;
-	}
 
 	public static int getPort() {
 		return port;

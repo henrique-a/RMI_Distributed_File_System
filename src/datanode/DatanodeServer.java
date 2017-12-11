@@ -34,9 +34,9 @@ public class DatanodeServer implements Datanode, Serializable {
 	private int port;
 	private int id;
 
-	public DatanodeServer(int id, int port) {
-		this.port = port;
+	public DatanodeServer(int id) {
 		this.id = id;
+		this.port = 5000 + id;
 		addToNamenode();
 	}
 
@@ -45,21 +45,20 @@ public class DatanodeServer implements Datanode, Serializable {
 		Scanner sc = new Scanner(System.in);
 		System.out.print("Digite o id do datanode: ");
 		int id = sc.nextInt();
-		System.out.print("Digite o número da porta: ");
-		int port = sc.nextInt();
-		
+	
 		createDirectory(id); // Método para criar um diretório do datanode
 		
 		try {
-
-			DatanodeServer obj = new DatanodeServer(id, port);
-			Datanode stub = (Datanode) UnicastRemoteObject.exportObject(obj, obj.getPort());
+			
 			String IP = localIP();
 			System.setProperty("java.rmi.server.hostname", IP);
 
+			DatanodeServer obj = new DatanodeServer(id);
+			Datanode stub = (Datanode) UnicastRemoteObject.exportObject(obj, obj.getPort());
+			
 			// Fazendo o bind do stub no registrador
 			Registry registry = LocateRegistry.createRegistry(obj.getPort());
-			registry.bind("Datanode" + String.valueOf(id), stub);
+			registry.rebind("Datanode" + String.valueOf(id), stub);
 
 			System.out.println("Servidor pronto!");
 
@@ -79,7 +78,7 @@ public class DatanodeServer implements Datanode, Serializable {
 		try {
 			Registry namenodeRegistry = LocateRegistry.getRegistry("localhost", NamenodeServer.getPort());
 			Namenode namenodeStub = (Namenode) namenodeRegistry.lookup("Namenode");
-			namenodeStub.addDatanode(this);
+			namenodeStub.addDatanode(this.id); // tenho que passar o id dele
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		} catch (NotBoundException e) {
@@ -105,7 +104,7 @@ public class DatanodeServer implements Datanode, Serializable {
 	}
 
 	@Override
-	public void read(String fileName) {
+	public void read(String fileName) throws IOException {
 		Path file = Paths.get("datanode" + String.valueOf(this.id) + "/" + fileName); // Converte uma String em um Path
 		Charset charset = Charset.forName("UTF-8");
 		try (BufferedReader reader = Files.newBufferedReader(file, charset)) {
@@ -118,7 +117,7 @@ public class DatanodeServer implements Datanode, Serializable {
 			Proxy proxyStub = (Proxy) proxyRegistry.lookup("Proxy");
 			proxyStub.sendToClient(text);
 		} catch (IOException x) {
-			System.err.format("IOException: %s%n", x);
+			throw new IOException()	;
 		} catch (NotBoundException e) {
 			e.printStackTrace();
 		}

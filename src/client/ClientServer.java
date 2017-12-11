@@ -5,15 +5,23 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
 import proxy.ProxyServer;
 import proxy.Proxy;
 
+
+
+
 public class ClientServer implements Client {
 	
-	public static int port = 7000;
+	private static int port = 7000;
+	public static Registry registry;
 	
 	public static void main(String[] args) {
 		// Thread para a interface do cliente que expõe os servicos oferecidos pelo
@@ -22,12 +30,14 @@ public class ClientServer implements Client {
 		Thread t = new Thread(clientView);
 		
 		try {
+			String IP = localIP();
+			System.setProperty("java.rmi.server.hostname", "localhost");
 
 			ClientServer obj = new ClientServer();
 			Client stub = (Client) UnicastRemoteObject.exportObject(obj, port);
 
 			// Fazendo o bind do stub no registrador
-			Registry registry = LocateRegistry.createRegistry(port);
+			registry = LocateRegistry.createRegistry(port);
 			registry.bind("Client", stub);
 
 			System.out.println("Cliente pronto!");
@@ -51,15 +61,6 @@ public class ClientServer implements Client {
 			case 1: // Criar
 				text = getText();
 				proxyStub.create(file, text);
-//				System.out.println("Ja deseja escrever algo no arquivo? Escreva 'S' ou 'N'");
-//				String confirmacao = sc.next();
-//				if(confirmacao.equals("S")) {
-//					text = getText();
-//					proxyStub.create(file, text);
-//				}if(confirmacao.equals("N")) {
-//					text = getText();
-//					proxyStub.create(file, "");
-//				}
 				break;
 			case 2: // Ler
 				proxyStub.read(file);
@@ -72,7 +73,7 @@ public class ClientServer implements Client {
 				proxyStub.delete(file);
 				break;
 			case 5:
-				proxyStub.list();
+				
 				break;
 			default:
 				throw new InputMismatchException();
@@ -105,5 +106,20 @@ public class ClientServer implements Client {
 	public static int getPort() {
 		return port;
 	}
+	
+	public static String localIP() {
+		try (final DatagramSocket socket = new DatagramSocket()) {
+			socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+			return socket.getLocalAddress().getHostAddress();
+		} catch (SocketException e) {
+			e.printStackTrace();
+			return "";
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			return "";
+		}
+
+	}
+
 	
 }
