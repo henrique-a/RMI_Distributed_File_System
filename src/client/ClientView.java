@@ -17,9 +17,13 @@ public class ClientView implements Runnable {
 				Scanner sc = new Scanner(System.in);
 				try {
 					comando = sc.nextInt();
-					System.out.println("Escreva o nome do arquivo desejado:");
-					String file = sc.next();
-					clientServer.sendRequest(file, comando);
+					if (comando != 5) {
+						System.out.println("Escreva o nome do arquivo desejado:");
+						String file = sc.next();
+						clientServer.sendRequest(file, comando);
+					} else {
+						clientServer.sendRequest("", comando);
+					}
 				} catch (InputMismatchException e) {
 					System.err.println("Opção inválida!");
 				}		

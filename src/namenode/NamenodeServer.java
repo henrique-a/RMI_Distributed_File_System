@@ -5,12 +5,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import datanode.Datanode;
 
@@ -51,9 +53,7 @@ public class NamenodeServer implements Namenode {
 	@Override
 	public int getDatanode(String file) {
 		try {
-			System.out.println("Entrou no get");
 			int id = map.get(file);
-			System.out.println("Id retornado: " + String.valueOf(id));
 			return id;
 		} catch (NullPointerException e) {
 			throw new NullPointerException();
@@ -70,10 +70,11 @@ public class NamenodeServer implements Namenode {
 
 	@Override
 	public void addFile(String file) {
-		System.out.println("Número de valores: " + numberOfDatadones);
 		map.put(file, new Integer(Math.abs(file.hashCode() % numberOfDatadones) + 1));
-		System.out.println("Salvo no datanode " + String.valueOf(Math.abs(file.hashCode() % numberOfDatadones) + 1));
 		saveToDisk(map, mapBackupFile);
+		System.out.println(map.values());
+		List<Integer> listDistinct = map.values().stream().distinct().collect(Collectors.toList());
+		System.out.println(listDistinct);
 	}
 
 	public void saveToDisk(Object obj, String fileName) {
@@ -103,7 +104,7 @@ public class NamenodeServer implements Namenode {
 		}
 		return obj;
 	}
-
+	
 
 	public static int getPort() {
 		return port;
@@ -111,6 +112,12 @@ public class NamenodeServer implements Namenode {
 
 	public HashMap<String, Integer> getMap() {
 		return map;
+	}
+
+	@Override
+	public List<Integer> getDatanodesList() throws RemoteException {
+		List<Integer> datanodesList = map.values().stream().distinct().collect(Collectors.toList());
+		return datanodesList;
 	}
 	
 }

@@ -1,5 +1,6 @@
 package proxy;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -11,6 +12,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Iterator;
 import java.util.List;
 
 import client.Client;
@@ -27,8 +29,7 @@ public class ProxyServer implements Proxy {
 	public static void main(String[] args) {
 
 		try {
-			String IP = localIP();
-			System.setProperty("java.rmi.server.hostname", IP);
+			System.setProperty("java.rmi.server.hostname", "localhost");
 
 			ProxyServer obj = new ProxyServer();
 			Proxy stub = (Proxy) UnicastRemoteObject.exportObject(obj, port);
@@ -58,7 +59,7 @@ public class ProxyServer implements Proxy {
 			int datanodeID = namenodeStub.getDatanode(file); // aqui eu pego o id e chamo um stub pra criar o arquivo
 			System.out.println("Solicitacao de Criacao do Arquivo: " + file + ".txt");
 
-			Registry datanodeRegistry = LocateRegistry.getRegistry(getIP(), 5000 + datanodeID);
+			Registry datanodeRegistry = LocateRegistry.getRegistry("localhost", 5000 + datanodeID);
 			Datanode datanodeStub = (Datanode) datanodeRegistry.lookup("Datanode" + String.valueOf(datanodeID));
 			datanodeStub.create(file, text);
 
@@ -176,32 +177,25 @@ public class ProxyServer implements Proxy {
 
 	}
 
-	public static String localIP() {
-		try (final DatagramSocket socket = new DatagramSocket()) {
-			socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-			return socket.getLocalAddress().getHostAddress();
-		} catch (SocketException e) {
+	@Override
+	public void list() throws RemoteException {
+		Registry namenodeRegistry = LocateRegistry.getRegistry("localhost", NamenodeServer.getPort());
+		try {
+			Namenode namenodeStub = (Namenode) namenodeRegistry.lookup("Namenode");
+			List<Integer> list = namenodeStub.getDatanodesList();
+			for (int id : list) {
+				File directory = new File("datanode" + String.valueOf(id));
+				File[] listOfFiles = directory.listFiles();
+				
+				for(File file : listOfFiles) {
+					sendToClient(file.getName());
+				}
+
+			}
+		} catch (NotBoundException e) {
 			e.printStackTrace();
-			return "";
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-			return "";
 		}
-
-	}
-
-	public String getIP() {
-		try (final DatagramSocket socket = new DatagramSocket()) {
-			socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-			return socket.getLocalAddress().getHostAddress();
-		} catch (SocketException e) {
-			e.printStackTrace();
-			return "";
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-			return "";
-		}
-
+		
 	}
 
 }
