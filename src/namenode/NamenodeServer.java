@@ -115,6 +115,16 @@ public class NamenodeServer implements Namenode {
 		return obj;
 	}
 
+	public List<Datanode> list() {
+		List<Datanode> datan = null;
+		try {
+			datan = (List<Datanode>) loadFromDisk(listBackupFile);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return datan;
+	}
 
 	public static int getPort() {
 		return port;

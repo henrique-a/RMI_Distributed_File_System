@@ -1,6 +1,8 @@
 package proxy;
 
 
+import java.io.File;
+import java.io.FileFilter;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -143,6 +145,65 @@ public class ProxyServer implements Proxy {
 		}
 		
 	}
+	
+	public void list() {
+		
+//		File folder = new File("C:\\Users\\Davi\\Documents\\Davi\\Distribuidos\\sd_projetofinal_374930\\datanode1");
+//		File[] listOfFiles = folder.listFiles();
+//
+//		for (File file : listOfFiles) {
+//		    if (file.isFile()) {
+//		    	sendToClient(file.getName());
+//		    }
+//		}
+		
+		File f = new File("C:\\Users\\Davi\\Documents\\Davi\\Distribuidos\\sd_projetofinal_374930"); // current directory
+
+		FileFilter directoryFilter = new FileFilter() {
+			public boolean accept(File file) {
+				return file.isDirectory();
+			}
+		};
+
+		File[] files = f.listFiles(directoryFilter);
+		for (File file : files) {
+			if (file.isDirectory() && file.toString().startsWith("datanode")) {
+				
+				File f2 = new File("C:\\Users\\Davi\\Documents\\Davi\\Distribuidos\\sd_projetofinal_374930"+file.getName());
+				File[] listOfFiles = f2.listFiles();
+				
+				for (File files2 : listOfFiles) {
+					if (files2.isFile()) {
+						sendToClient(files2.getName());
+					}
+				}
+			}	
+		}
+		
+		
+		
+		
+		
+		
+		
+//	FileFilter filter = new FileFilter() {
+//		public boolean accept(File file) {
+//			return file.getName().startsWith("datanode");
+//		}
+//		};
+//		File dir = new File("C:\\Users\\Davi\\Documents\\Davi\\Distribuidos\\sd_projetofinal_374930");
+//		File[] files = dir.listFiles(filter);
+//		File[][] txts = new File[files.length][];
+//		
+//		for(int i = 0; i< files.length ; i++) {
+//			File txt = new File("C:\\Users\\Davi\\Documents\\Davi\\Distribuidos\\sd_projetofinal_374930\\"+files[i].toString());
+//			txts[i] = txt.listFiles();
+//			System.out.println(txt.listFiles());
+//		}
+////		return txts;
+//		System.out.println(txts);
+
+	}
 
 	public static int getPort() {
 		return port;
@@ -160,5 +221,6 @@ public class ProxyServer implements Proxy {
 			e.printStackTrace();
 		}
 	}
+	
 	
 }

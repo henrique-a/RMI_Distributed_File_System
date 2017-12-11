@@ -11,9 +11,6 @@ import java.rmi.RemoteException;
 import proxy.ProxyServer;
 import proxy.Proxy;
 
-
-
-
 public class ClientServer implements Client {
 	
 	public static int port = 7000;
@@ -75,7 +72,7 @@ public class ClientServer implements Client {
 				proxyStub.delete(file);
 				break;
 			case 5:
-				
+				proxyStub.list();
 				break;
 			default:
 				throw new InputMismatchException();
