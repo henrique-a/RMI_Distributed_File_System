@@ -93,7 +93,9 @@ public class ClientServer implements Client {
 		String text = "";
 		while(!line.equals("\\e")){
 			  line = sc.nextLine();
-			  text += line + "\n";
+			  if (!line.equals("\\e")) {
+				  text += line + "\n";
+			  }
 		}
 		return text;
 	}
