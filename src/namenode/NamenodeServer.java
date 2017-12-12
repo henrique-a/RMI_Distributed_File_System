@@ -20,13 +20,16 @@ public class NamenodeServer implements Namenode {
 	private static int port = 7002;
 	HashMap<String, Integer> map;
 	String mapBackupFile = "map.ser";
-	int numberOfDatadones = 0;
+	Integer numberOfDatadones;
+	String numberBackup = "ndatanode.ser";
 
 	public NamenodeServer() {
 		try {
 			this.map = (HashMap<String, Integer>) loadFromDisk(mapBackupFile);
+			this.numberOfDatadones = (Integer) loadFromDisk(numberBackup);
 		} catch (IOException e) {
 			this.map = new HashMap<>();
+			numberOfDatadones = 0;
 		}
 	}
 
@@ -66,6 +69,7 @@ public class NamenodeServer implements Namenode {
 		numberOfDatadones += 1;
 		map.put(null, id);
 		saveToDisk(map, mapBackupFile);
+		saveToDisk(numberOfDatadones, numberBackup);	
 	}
 
 	@Override

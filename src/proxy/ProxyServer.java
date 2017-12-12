@@ -87,7 +87,7 @@ public class ProxyServer implements Proxy {
 			Datanode datanodeStub = (Datanode) datanodeRegistry.lookup("Datanode" + Integer.toString(datanodeID));
 			datanodeStub.read(file);
 		} catch (RemoteException e) {
-			e.printStackTrace();
+			sendToClient("Erro no servidor");
 		} catch (NullPointerException e) {
 			sendToClient("Arquivo inexistente!");
 		} catch (NotBoundException e) {
