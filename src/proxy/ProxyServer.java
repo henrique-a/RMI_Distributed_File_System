@@ -110,7 +110,6 @@ public class ProxyServer implements Proxy {
 			System.out.println("Escrita realizada com sucesso!");
 		} catch (NullPointerException e) {
 			sendToClient("Arquivo inexistente!");
-
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		} catch (NotBoundException e) {
@@ -171,7 +170,7 @@ public class ProxyServer implements Proxy {
 		} catch (NotBoundException e) {
 			e.printStackTrace();
 		} catch (NullPointerException e) {
-			sendToClient("Serviço indisponível");
+			throw new NullPointerException();
 		}
 		return datanode;
 

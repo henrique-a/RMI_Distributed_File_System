@@ -11,7 +11,7 @@ public class ClientView implements Runnable {
 		int comando = 0;
 		System.out.println("Bem vindo!");
 
-			while(comando != 6) {
+			while(true) {
 				System.out.println("Escolha a operação abaixo:");
 				System.out.println("1.Criar \n2.Ler \n3.Escrever \n4.Deletar \n5.Listar \n6.Sair");
 				Scanner sc = new Scanner(System.in);
@@ -21,6 +21,8 @@ public class ClientView implements Runnable {
 						System.out.println("Escreva o nome do arquivo desejado:");
 						String file = sc.next();
 						clientServer.sendRequest(file, comando);
+					} else if (comando == 6) {
+						break;
 					} else {
 						clientServer.sendRequest("", comando);
 					}

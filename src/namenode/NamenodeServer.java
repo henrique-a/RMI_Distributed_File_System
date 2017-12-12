@@ -76,9 +76,6 @@ public class NamenodeServer implements Namenode {
 	public void addFile(String file) {
 		map.put(file, new Integer(Math.abs(file.hashCode() % numberOfDatadones) + 1));
 		saveToDisk(map, mapBackupFile);
-		System.out.println(map.values());
-		List<Integer> listDistinct = map.values().stream().distinct().collect(Collectors.toList());
-		System.out.println(listDistinct);
 	}
 
 	public void saveToDisk(Object obj, String fileName) {
