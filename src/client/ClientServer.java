@@ -15,9 +15,6 @@ import java.rmi.RemoteException;
 import proxy.ProxyServer;
 import proxy.Proxy;
 
-
-
-
 public class ClientServer implements Client {
 	
 	private static int port = 7000;
@@ -30,7 +27,6 @@ public class ClientServer implements Client {
 		Thread t = new Thread(clientView);
 		
 		try {
-			String IP = localIP();
 			System.setProperty("java.rmi.server.hostname", "localhost");
 
 			ClientServer obj = new ClientServer();
@@ -97,6 +93,7 @@ public class ClientServer implements Client {
 				  text += line + "\n";
 			  }
 		}
+		sc.close();
 		return text;
 	}
 

@@ -45,6 +45,7 @@ public class DatanodeServer implements Datanode, Serializable {
 		Scanner sc = new Scanner(System.in);
 		System.out.print("Digite o id do datanode: ");
 		int id = sc.nextInt();
+		sc.close();
 	
 		createDirectory(id); // Método para criar um diretório do datanode
 		
@@ -78,7 +79,7 @@ public class DatanodeServer implements Datanode, Serializable {
 		try {
 			Registry namenodeRegistry = LocateRegistry.getRegistry("localhost", NamenodeServer.getPort());
 			Namenode namenodeStub = (Namenode) namenodeRegistry.lookup("Namenode");
-			namenodeStub.addDatanode(this.id); // tenho que passar o id dele
+			namenodeStub.addDatanode(this.id);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		} catch (NotBoundException e) {
@@ -96,8 +97,8 @@ public class DatanodeServer implements Datanode, Serializable {
 			Registry proxyRegistry = LocateRegistry.getRegistry("localhost", ProxyServer.getPort());
 			Proxy proxyStub = (Proxy) proxyRegistry.lookup("Proxy");
 			proxyStub.sendToClient("Arquivo " + fileName + ".txt criado!");
-			} catch (IOException x) {
-			System.err.format("IOException: %s%n", x);
+		} catch (IOException e) {
+			System.err.format("IOException: %s%n", e);
 		} catch (NotBoundException e) {
 				e.printStackTrace();
 			}
@@ -132,8 +133,8 @@ public class DatanodeServer implements Datanode, Serializable {
 			Registry proxyRegistry = LocateRegistry.getRegistry("localhost", ProxyServer.getPort());
 			Proxy proxyStub = (Proxy) proxyRegistry.lookup("Proxy");
 			proxyStub.sendToClient("Arquivo " + fileName + ".txt editado!");
-		} catch (IOException x) {
-			System.err.format("IOException: %s%n", x);
+		} catch (IOException e) {
+			System.err.format("IOException: %s%n", e);
 		} catch (NotBoundException e) {
 			e.printStackTrace();
 		}
@@ -152,15 +153,15 @@ public class DatanodeServer implements Datanode, Serializable {
 			System.err.format("%s: no such" + " file or directory%n", file);
 		} catch (DirectoryNotEmptyException x) {
 			System.err.format("%s not empty%n", file);
-		} catch (IOException x) {
+		} catch (IOException e) {
 			// File permission problems are caught here.
-			System.err.println(x);
+			System.err.println(e);
 		} catch (NotBoundException e) {
 			e.printStackTrace();
 		}
 	}
 
-		public int getPort() {
+	public int getPort() {
 		return port;
 	}
 

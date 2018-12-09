@@ -22,6 +22,7 @@ public class ClientView implements Runnable {
 						String file = sc.next();
 						clientServer.sendRequest(file, comando);
 					} else if (comando == 6) {
+						sc.close();
 						break;
 					} else {
 						clientServer.sendRequest("", comando);

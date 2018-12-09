@@ -2,7 +2,6 @@ package proxy;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.List;
 
 public interface Proxy extends Remote{
 	void create(String file, String text) throws RemoteException; 

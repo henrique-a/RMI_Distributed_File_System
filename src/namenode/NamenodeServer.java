@@ -9,12 +9,9 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import datanode.Datanode;
 
 public class NamenodeServer implements Namenode {
 	private static int port = 7002;
@@ -23,6 +20,7 @@ public class NamenodeServer implements Namenode {
 	Integer numberOfDatadones;
 	String numberBackup = "ndatanode.ser";
 
+	@SuppressWarnings("unchecked")
 	public NamenodeServer() {
 		try {
 			this.map = (HashMap<String, Integer>) loadFromDisk(mapBackupFile);
@@ -74,7 +72,7 @@ public class NamenodeServer implements Namenode {
 
 	@Override
 	public void addFile(String file) {
-		map.put(file, new Integer(Math.abs(file.hashCode() % numberOfDatadones) + 1));
+		map.put(file, Math.abs(file.hashCode() % numberOfDatadones) + 1);
 		saveToDisk(map, mapBackupFile);
 	}
 
